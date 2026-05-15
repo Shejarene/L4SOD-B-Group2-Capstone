@@ -5,3 +5,16 @@ dist/
 *.log
 .DS_Store
 postgres_data/
+
+.env.*.local
+*.log
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.vercel
+.vscode/
+.idea/

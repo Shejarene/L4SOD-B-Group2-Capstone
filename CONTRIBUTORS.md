@@ -1,0 +1,8 @@
+# Contributors
+
+- **Ruti Raissa**
+- **Promis**
+- **Eric**
+- **Benvinue**
+- **Sandrine**
+- **Hamza**

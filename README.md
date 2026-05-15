@@ -4,9 +4,9 @@ A comprehensive, production-ready school management system with Vue 3 frontend a
 
 ## Tech Stack
 
-**Frontend**: Vue 3 (Composition API) + Vite + Pinia + Vue Router + Tailwind CSS + PrimeVue
-**Backend**: Node.js + Express.js + PostgreSQL (via Sequelize ORM) + JWT Authentication
-**Optional**: Docker Compose for easy deployment
+- **Frontend**: Vue 3 (Composition API) + Vite + Pinia + Vue Router + Tailwind CSS + PrimeVue
+- **Backend**: Node.js + Express.js + PostgreSQL (via Sequelize ORM) + JWT Authentication
+- **Optional**: Docker Compose for easy deployment
 
 ## Features
 
@@ -121,3 +121,10 @@ frontend/
     composables/- Shared composables
     utils/      - Axios instance, helpers
 ```
+
+## Deploy to Vercel
+
+1. Connect your GitHub repo to Vercel
+2. Set root directory to `frontend`
+3. Vercel auto-detects Vite framework
+4. Deploy!
