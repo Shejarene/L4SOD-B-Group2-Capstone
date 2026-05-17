@@ -55,14 +55,14 @@
         <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Low Attendance Students</h2>
         <DataTable :value="lowAttendanceStudents" :loading="loading" paginator :rows="10" responsiveLayout="scroll">
           <Column field="name" header="Student" sortable />
-          <Column field="class_name" header="Class" sortable />
-          <Column field="attendance_rate" header="Rate" sortable>
+          <Column field="className" header="Class" sortable />
+          <Column field="attendanceRate" header="Rate" sortable>
             <template #body="{ data }">
-              <Tag :value="`${data.attendance_rate}%`" :severity="data.attendance_rate < 75 ? 'danger' : data.attendance_rate < 85 ? 'warning' : 'success'" />
+              <Tag :value="`${data.attendanceRate}%`" :severity="data.attendanceRate < 75 ? 'danger' : data.attendanceRate < 85 ? 'warning' : 'success'" />
             </template>
           </Column>
-          <Column field="days_present" header="Present" />
-          <Column field="days_absent" header="Absent" />
+          <Column field="daysPresent" header="Present" />
+          <Column field="daysAbsent" header="Absent" />
         </DataTable>
       </div>
     </div>
@@ -110,7 +110,7 @@ const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOStrin
 const filteredAttendance = computed(() => {
   let data = attendance.value
   if (filters.value.classId) {
-    data = data.filter(a => a.class_id === filters.value.classId)
+    data = data.filter(a => a.classId === filters.value.classId)
   }
   if (filters.value.dateFrom) {
     data = data.filter(a => a.date >= filters.value.dateFrom)
@@ -182,9 +182,9 @@ const doughnutData = computed(() => {
 const classBarData = computed(() => {
   const classMap = {}
   filteredAttendance.value.forEach(a => {
-    if (!classMap[a.class_id]) classMap[a.class_id] = { present: 0, total: 0, name: a.class_name || 'Unknown' }
-    classMap[a.class_id].total++
-    if (a.status === 'present' || a.status === 'late') classMap[a.class_id].present++
+    if (!classMap[a.classId]) classMap[a.classId] = { present: 0, total: 0, name: a.className || 'Unknown' }
+    classMap[a.classId].total++
+    if (a.status === 'present' || a.status === 'late') classMap[a.classId].present++
   })
   const names = Object.values(classMap).map(c => c.name)
   const rates = Object.values(classMap).map(c => c.total ? Math.round((c.present / c.total) * 100) : 0)
@@ -201,21 +201,21 @@ const classBarData = computed(() => {
 const lowAttendanceStudents = computed(() => {
   const studentMap = {}
   filteredAttendance.value.forEach(a => {
-    if (!studentMap[a.student_id]) {
-      studentMap[a.student_id] = { name: a.student_name || 'Unknown', class_name: a.class_name || '', present: 0, total: 0 }
+    if (!studentMap[a.studentId]) {
+      studentMap[a.studentId] = { name: a.studentName || 'Unknown', className: a.className || '', present: 0, total: 0 }
     }
-    studentMap[a.student_id].total++
-    if (a.status === 'present' || a.status === 'late') studentMap[a.student_id].present++
+    studentMap[a.studentId].total++
+    if (a.status === 'present' || a.status === 'late') studentMap[a.studentId].present++
   })
   return Object.values(studentMap)
     .map(s => ({
       ...s,
-      days_present: s.present,
-      days_absent: s.total - s.present,
-      attendance_rate: s.total ? Math.round((s.present / s.total) * 100) : 0,
+      daysPresent: s.present,
+      daysAbsent: s.total - s.present,
+      attendanceRate: s.total ? Math.round((s.present / s.total) * 100) : 0,
     }))
-    .filter(s => s.attendance_rate < 85)
-    .sort((a, b) => a.attendance_rate - b.attendance_rate)
+    .filter(s => s.attendanceRate < 85)
+    .sort((a, b) => a.attendanceRate - b.attendanceRate)
 })
 
 const chartOptions = {
@@ -231,7 +231,7 @@ const doughnutOptions = {
 }
 
 const loadClasses = async () => {
-  const { data } = await supabase.from('classes').select('id, name').order('name')
+  const { data } = await supabase.from('Classes').select('id, name').order('name')
   classes.value = data || []
 }
 
@@ -239,15 +239,15 @@ const loadAttendance = async () => {
   loading.value = true
   try {
     const { data, error } = await supabase
-      .from('attendance')
-      .select('*, classes(name), students(admission_number, users(first_name, last_name))')
+      .from('Attendance')
+      .select('*, Classes(name), Students(admissionNumber, Users(firstName, lastName))')
       .gte('date', thirtyDaysAgo)
       .order('date', { ascending: false })
     if (error) throw error
     attendance.value = (data || []).map(a => ({
       ...a,
-      class_name: a.classes?.name,
-      student_name: a.students ? `${a.students.users?.first_name || ''} ${a.students.users?.last_name || ''}`.trim() || a.students.admission_number : null,
+      className: a.Classes?.name,
+      studentName: a.Students ? `${a.Students.Users?.firstName || ''} ${a.Students.Users?.lastName || ''}`.trim() || a.Students.admissionNumber : null,
     }))
   } catch (e) {
     console.error('Failed to load attendance:', e)

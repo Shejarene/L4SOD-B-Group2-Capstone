@@ -7,7 +7,7 @@
 
     <div class="card">
       <DataTable :value="exams" :loading="loading" paginator :rows="15"
-        :globalFilterFields="['name', 'term', 'academic_year', 'class_name']" responsiveLayout="scroll">
+        :globalFilterFields="['name', 'term', 'academicYear', 'className']" responsiveLayout="scroll">
         <template #header>
           <div class="flex justify-between items-center">
             <span class="text-xl font-semibold">Exams</span>
@@ -19,15 +19,15 @@
         </template>
 
         <Column field="name" header="Exam Name" sortable />
-        <Column field="class_name" header="Target" sortable>
+        <Column field="className" header="Target" sortable>
           <template #body="{ data }">
-            <span v-if="data.student_name" class="text-sm">
+            <span v-if="data.studentName" class="text-sm">
               <Tag value="Student" severity="info" class="mr-1" />
-              {{ data.student_name }}
+              {{ data.studentName }}
             </span>
-            <span v-else-if="data.class_name" class="text-sm">
+            <span v-else-if="data.className" class="text-sm">
               <Tag value="Class" severity="success" class="mr-1" />
-              {{ data.class_name }}
+              {{ data.className }}
             </span>
             <Tag v-else value="All" severity="warning" />
           </template>
@@ -37,16 +37,16 @@
             <Tag :value="`Term ${data.term}`" :severity="termSeverity(data.term)" />
           </template>
         </Column>
-        <Column field="academic_year" header="Academic Year" sortable />
-        <Column field="max_score" header="Max Score" sortable />
-        <Column field="start_date" header="Start Date" sortable>
+        <Column field="academicYear" header="Academic Year" sortable />
+        <Column field="maxScore" header="Max Score" sortable />
+        <Column field="startDate" header="Start Date" sortable>
           <template #body="{ data }">
-            {{ formatDate(data.start_date) }}
+            {{ formatDate(data.startDate) }}
           </template>
         </Column>
-        <Column field="end_date" header="End Date" sortable>
+        <Column field="endDate" header="End Date" sortable>
           <template #body="{ data }">
-            {{ formatDate(data.end_date) }}
+            {{ formatDate(data.endDate) }}
           </template>
         </Column>
         <Column header="Actions" :exportable="false">
@@ -66,7 +66,7 @@
 
         <div class="grid grid-cols-2 gap-4">
           <FormField v-model.number="form.term" label="Term" type="number" :min="1" :max="3" required />
-          <FormField v-model="form.academic_year" label="Academic Year" placeholder="e.g. 2024-2025" />
+          <FormField v-model="form.academicYear" label="Academic Year" placeholder="e.g. 2024-2025" />
         </div>
 
         <div class="p-field">
@@ -76,7 +76,7 @@
 
         <div v-if="form.targetType === 'class'" class="p-field">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Class</label>
-          <Dropdown v-model="form.class_id" :options="classes" optionLabel="name" optionValue="id"
+          <Dropdown v-model="form.classId" :options="classes" optionLabel="name" optionValue="id"
             placeholder="Select a class" class="w-full" />
         </div>
 
@@ -88,16 +88,16 @@
           </div>
           <div class="p-field">
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Student</label>
-            <Dropdown v-model="form.student_id" :options="filteredStudents" optionLabel="display_name" optionValue="id"
+            <Dropdown v-model="form.studentId" :options="filteredStudents" optionLabel="displayName" optionValue="id"
               placeholder="Select a student" class="w-full" :disabled="!form.filterClassId" />
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
-          <FormField v-model="form.start_date" label="Start Date" type="date" />
-          <FormField v-model="form.end_date" label="End Date" type="date" />
+          <FormField v-model="form.startDate" label="Start Date" type="date" />
+          <FormField v-model="form.endDate" label="End Date" type="date" />
         </div>
-        <FormField v-model.number="form.max_score" label="Max Score" type="number" :min="1" />
+        <FormField v-model.number="form.maxScore" label="Max Score" type="number" :min="1" />
       </div>
       <template #footer>
         <Button label="Cancel" class="p-button-text" @click="showDialog = false" />
@@ -123,9 +123,9 @@ const search = ref('')
 const showDialog = ref(false)
 const editingExam = ref(null)
 const form = ref({
-  name: '', term: 1, academic_year: '', max_score: 100,
-  start_date: '', end_date: '', targetType: 'all',
-  class_id: null, student_id: null, filterClassId: null,
+  name: '', term: 1, academicYear: '', maxScore: 100,
+  startDate: '', endDate: '', targetType: 'all',
+  classId: null, studentId: null, filterClassId: null,
 })
 
 const targetTypes = [
@@ -145,13 +145,13 @@ const loadExams = async () => {
   loading.value = true
   try {
     const { data, error } = await supabase
-      .from('exams')
-      .select('*, classes(name), students(admission_number, users(first_name, last_name))')
+      .from('Exams')
+      .select('*, Classes(name), Students(admissionNumber, Users(firstName, lastName))')
     if (error) throw error
     exams.value = (data || []).map(e => ({
       ...e,
-      class_name: e.classes?.name,
-      student_name: e.students ? `${e.students.users?.first_name || ''} ${e.students.users?.last_name || ''}`.trim() || e.students.admission_number : null,
+      className: e.Classes?.name,
+      studentName: e.Students ? `${e.Students.Users?.firstName || ''} ${e.Students.Users?.lastName || ''}`.trim() || e.Students.admissionNumber : null,
     }))
   } catch (e) {
     console.error('Failed to load exams:', e)
@@ -161,7 +161,7 @@ const loadExams = async () => {
 }
 
 const loadClasses = async () => {
-  const { data } = await supabase.from('classes').select('id, name').order('name')
+  const { data } = await supabase.from('Classes').select('id, name').order('name')
   classes.value = data || []
 }
 
@@ -171,34 +171,34 @@ const loadStudentsForClass = async () => {
     return
   }
   const { data } = await supabase
-    .from('students')
-    .select('id, admission_number, users(first_name, last_name)')
-    .eq('class_id', form.value.filterClassId)
+    .from('Students')
+    .select('id, admissionNumber, Users(firstName, lastName)')
+    .eq('classId', form.value.filterClassId)
   filteredStudents.value = (data || []).map(s => ({
     ...s,
-    display_name: `${s.users?.first_name || ''} ${s.users?.last_name || ''}`.trim() || s.admission_number,
+    displayName: `${s.Users?.firstName || ''} ${s.Users?.lastName || ''}`.trim() || s.admissionNumber,
   }))
 }
 
 const openCreateDialog = () => {
   editingExam.value = null
   form.value = {
-    name: '', term: 1, academic_year: '', max_score: 100,
-    start_date: '', end_date: '', targetType: 'all',
-    class_id: null, student_id: null, filterClassId: null,
+    name: '', term: 1, academicYear: '', maxScore: 100,
+    startDate: '', endDate: '', targetType: 'all',
+    classId: null, studentId: null, filterClassId: null,
   }
   showDialog.value = true
 }
 
 const openEditDialog = (exam) => {
   editingExam.value = exam
-  const targetType = exam.student_id ? 'student' : exam.class_id ? 'class' : 'all'
+  const targetType = exam.studentId ? 'student' : exam.classId ? 'class' : 'all'
   form.value = {
     ...exam,
     targetType,
-    filterClassId: exam.class_id,
+    filterClassId: exam.classId,
   }
-  if (exam.class_id) loadStudentsForClass()
+  if (exam.classId) loadStudentsForClass()
   showDialog.value = true
 }
 
@@ -209,20 +209,20 @@ const saveExam = async () => {
     const payload = {
       name: form.value.name,
       term: form.value.term,
-      academic_year: form.value.academic_year,
-      max_score: form.value.max_score,
-      start_date: form.value.start_date || null,
-      end_date: form.value.end_date || null,
-      class_id: form.value.targetType === 'class' ? form.value.class_id : null,
-      student_id: form.value.targetType === 'student' ? form.value.student_id : null,
-      created_by: authStore.user?.id || null,
+      academicYear: form.value.academicYear,
+      maxScore: form.value.maxScore,
+      startDate: form.value.startDate || null,
+      endDate: form.value.endDate || null,
+      classId: form.value.targetType === 'class' ? form.value.classId : null,
+      studentId: form.value.targetType === 'student' ? form.value.studentId : null,
+      createdBy: authStore.user?.id || null,
     }
 
     if (editingExam.value) {
-      const { error } = await supabase.from('exams').update(payload).eq('id', editingExam.value.id)
+      const { error } = await supabase.from('Exams').update(payload).eq('id', editingExam.value.id)
       if (error) throw error
     } else {
-      const { error } = await supabase.from('exams').insert(payload)
+      const { error } = await supabase.from('Exams').insert(payload)
       if (error) throw error
     }
     showDialog.value = false
@@ -237,7 +237,7 @@ const saveExam = async () => {
 const deleteExam = async (exam) => {
   if (!confirm(`Delete "${exam.name}"?`)) return
   try {
-    const { error } = await supabase.from('exams').delete().eq('id', exam.id)
+    const { error } = await supabase.from('Exams').delete().eq('id', exam.id)
     if (error) throw error
     await loadExams()
   } catch (e) {
