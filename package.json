@@ -1,8 +1,8 @@
 {
-  "name": "l4sod-school-management",
+  "name": "acadex",
   "version": "1.0.0",
   "private": true,
-  "description": "L4SOD School Management System - Capstone Project",
+  "description": "Acadex - School Management System - Capstone Project",
   "workspaces": [
     "apps/*"
   ],

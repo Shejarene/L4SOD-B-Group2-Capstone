@@ -81,6 +81,12 @@ const routes = [
         meta: { title: 'Subjects', roles: ['super_admin', 'admin', 'principal', 'dos'] },
       },
       {
+        path: 'exams',
+        name: 'Exams',
+        component: () => import('../views/exams/Index.vue'),
+        meta: { title: 'Exam Management', roles: ['super_admin', 'admin', 'principal', 'dos', 'teacher'] },
+      },
+      {
         path: 'marks',
         name: 'Marks',
         component: () => import('../views/marks/Index.vue'),
@@ -103,6 +109,12 @@ const routes = [
         name: 'AttendanceReport',
         component: () => import('../views/attendance/Report.vue'),
         meta: { title: 'Attendance Report' },
+      },
+      {
+        path: 'attendance/analytics',
+        name: 'AttendanceAnalytics',
+        component: () => import('../views/attendance/Analytics.vue'),
+        meta: { title: 'Attendance Analytics', roles: ['super_admin', 'admin', 'principal', 'dos', 'teacher'] },
       },
       {
         path: 'fees',

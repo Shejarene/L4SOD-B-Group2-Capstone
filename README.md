@@ -1,4 +1,4 @@
-# L4SOD School Management System
+# Acadex
 
 > Capstone Project - Group 2
 
@@ -40,8 +40,9 @@ A comprehensive school management system built with Vue 3, Vite, and Supabase.
 │               ├── teachers/   # Teacher management
 │               ├── classes/    # Classrooms, Levels
 │               ├── subjects/   # Subject management
+│               ├── exams/      # Exam creation & targeting
 │               ├── marks/      # Marks entry & approval
-│               ├── attendance/ # Daily attendance & reports
+│               ├── attendance/ # Daily attendance, reports & analytics
 │               ├── fees/       # Fee structures & payments
 │               ├── timetable/  # Class schedules
 │               ├── discipline/ # Discipline records
@@ -131,6 +132,8 @@ Go to Supabase Dashboard → Auth → Providers → Email → Turn OFF "Confirm 
 
 ## Features
 
+- **Exam Management** - Create exams for all, specific classes, or individual students
+- **Attendance Analytics** - Visual charts, trends, class comparisons, low-attendance alerts
 - **Role-based Access Control** - 9 distinct user roles with tailored dashboards
 - **Access Request System** - Users can request account access, admins review and approve
 - **Real-time Notifications** - Super admin gets instant alerts for new access requests
