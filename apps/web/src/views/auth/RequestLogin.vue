@@ -168,15 +168,14 @@ const handleSubmit = async () => {
 
   loading.value = true
   try {
-    const { error: err } = await supabase.from('invites').insert({
+    const { error: err } = await supabase.from('LoginRequests').insert({
+      firstName: form.firstName,
+      lastName: form.lastName,
       email: form.email,
-      role: form.requestedRole,
-      first_name: form.firstName,
-      last_name: form.lastName,
       phone: form.phone,
+      requestedRole: form.requestedRole,
       reason: form.reason,
       status: 'pending',
-      token: crypto.randomUUID(),
     })
     if (err) throw err
     submitted.value = true

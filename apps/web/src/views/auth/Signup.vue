@@ -88,13 +88,12 @@ const errors = reactive({})
 
 const verifyInvite = async () => {
   try {
-    const { data, error: err } = await supabase.rpc('verify_invite_token', { p_token: route.params.token })
-    if (err) throw err
-    if (!data || data.length === 0) {
+    const { data, error: err } = await supabase.from('Invites').select('*').eq('token', route.params.token).eq('used', false).single()
+    if (err || !data) {
       error.value = 'Invalid or expired invite link'
     } else {
-      invite.value = data[0]
-      if (data[0].email) form.email = data[0].email
+      invite.value = data
+      if (data.email) form.email = data.email
     }
   } catch (err) {
     error.value = err.message || 'Invalid or expired invite link'
@@ -116,8 +115,8 @@ const handleSignup = async () => {
       password: form.password,
       options: {
         data: {
-          first_name: form.firstName,
-          last_name: form.lastName,
+          firstName: form.firstName,
+          lastName: form.lastName,
           phone: form.phone,
           role: invite.value.role,
         },
@@ -125,15 +124,19 @@ const handleSignup = async () => {
     })
     if (authError) throw authError
 
-    await supabase.rpc('accept_invite', { p_token: route.params.token })
+    await supabase.from('Invites').update({
+      used: true,
+      usedAt: new Date().toISOString(),
+      usedBy: authData.user?.id,
+    }).eq('token', route.params.token)
 
     if (authData.user) {
-      await supabase.from('users').insert({
+      await supabase.from('Users').insert({
         id: authData.user.id,
         email: form.email,
         role: invite.value.role,
-        first_name: form.firstName,
-        last_name: form.lastName,
+        firstName: form.firstName,
+        lastName: form.lastName,
         phone: form.phone,
       })
     }

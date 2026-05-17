@@ -32,7 +32,7 @@ export const useAuthStore = defineStore('auth', {
         this.isDemo = false
         localStorage.removeItem('isDemo')
         const { data: profile } = await supabase
-          .from('users')
+          .from('Users')
           .select('*')
           .eq('id', data.user.id)
           .single()
@@ -71,7 +71,7 @@ export const useAuthStore = defineStore('auth', {
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         const { data: profile } = await supabase
-          .from('users')
+          .from('Users')
           .select('*')
           .eq('id', user.id)
           .single()

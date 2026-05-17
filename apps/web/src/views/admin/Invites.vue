@@ -19,12 +19,12 @@
       <h2 class="text-lg font-semibold mb-4">Pending Access Requests</h2>
       <DataTable v-if="requests.length" :value="requests" :loading="loadingReq" :paginator="true" :rows="10">
         <Column header="Name">
-          <template #body="{ data }">{{ data.first_name }} {{ data.last_name }}</template>
+          <template #body="{ data }">{{ data.firstName }} {{ data.lastName }}</template>
         </Column>
         <Column field="email" header="Email"></Column>
         <Column header="Role">
           <template #body="{ data }">
-            <Tag :value="data.role?.replace('_', ' ')" />
+            <Tag :value="data.requestedRole?.replace('_', ' ')" />
           </template>
         </Column>
         <Column field="phone" header="Phone"></Column>
@@ -67,11 +67,11 @@
         </Column>
         <Column header="Status">
           <template #body="{ data }">
-            <Tag :value="data.status === 'approved' ? 'Accepted' : data.status === 'rejected' ? 'Rejected' : 'Pending'" :severity="data.status === 'approved' ? 'success' : data.status === 'rejected' ? 'danger' : 'warning'" />
+            <Tag :value="data.used ? 'Used' : 'Pending'" :severity="data.used ? 'success' : 'warning'" />
           </template>
         </Column>
         <Column header="Created">
-          <template #body="{ data }">{{ data.created_at ? new Date(data.created_at).toLocaleDateString() : '-' }}</template>
+          <template #body="{ data }">{{ data.createdAt ? new Date(data.createdAt).toLocaleDateString() : '-' }}</template>
         </Column>
         <Column header="Actions">
           <template #body="{ data }">
@@ -150,15 +150,8 @@ const copyLink = async (token) => {
 const loadInvites = async () => {
   loading.value = true
   try {
-    let data
-    const { data: rpcData, error: rpcErr } = await supabase.rpc('get_all_invites')
-    if (rpcErr) {
-      const { data: directData } = await supabase.from('invites').select('*').order('created_at', { ascending: false })
-      data = directData || []
-    } else {
-      data = rpcData || []
-    }
-    invites.value = data.filter(i => !i.reason)
+    const { data } = await supabase.from('Invites').select('*').order('createdAt', { ascending: false })
+    invites.value = data || []
   } catch (err) {
     console.error('loadInvites error:', err)
   }
@@ -168,20 +161,12 @@ const loadInvites = async () => {
 const loadRequests = async () => {
   loadingReq.value = true
   try {
-    let data
-    const { data: rpcData, error: rpcErr } = await supabase.rpc('get_pending_requests')
-    if (rpcErr) {
-      const { data: directData } = await supabase
-        .from('invites')
-        .select('*')
-        .eq('status', 'pending')
-        .not('reason', 'is', null)
-        .order('created_at', { ascending: false })
-      data = directData || []
-    } else {
-      data = rpcData || []
-    }
-    requests.value = data
+    const { data } = await supabase
+      .from('LoginRequests')
+      .select('*')
+      .eq('status', 'pending')
+      .order('createdAt', { ascending: false })
+    requests.value = data || []
   } catch (err) {
     console.error('loadRequests error:', err)
   }
@@ -190,47 +175,46 @@ const loadRequests = async () => {
 
 const setupRealtime = () => {
   realtimeChannel = supabase
-    .channel('invites-changes')
+    .channel('access-requests-changes')
     .on(
       'postgres_changes',
-      { event: 'INSERT', schema: 'public', table: 'invites' },
+      { event: 'INSERT', schema: 'public', table: 'LoginRequests' },
       (payload) => {
         const newRow = payload.new
-        if (newRow.reason) {
+        if (newRow.status === 'pending') {
           requests.value = [newRow, ...requests.value]
           toast.add({
             severity: 'warn',
             summary: 'New Access Request!',
-            detail: `${newRow.first_name || ''} ${newRow.last_name || ''} (${newRow.email}) requested access as ${newRow.role}`,
+            detail: `${newRow.firstName || ''} ${newRow.lastName || ''} (${newRow.email}) requested access as ${newRow.requestedRole}`,
             life: 8000,
           })
-        } else {
-          invites.value = [newRow, ...invites.value]
         }
       }
     )
     .on(
       'postgres_changes',
-      { event: 'UPDATE', schema: 'public', table: 'invites' },
+      { event: 'UPDATE', schema: 'public', table: 'LoginRequests' },
       (payload) => {
         const updated = payload.new
         const idx = requests.value.findIndex(r => r.id === updated.id)
         if (idx !== -1) {
           requests.value.splice(idx, 1)
         }
-        const idx2 = invites.value.findIndex(i => i.id === updated.id)
-        if (idx2 !== -1) {
-          invites.value[idx2] = updated
-        }
       }
     )
     .on(
       'postgres_changes',
-      { event: 'DELETE', schema: 'public', table: 'invites' },
+      { event: 'INSERT', schema: 'public', table: 'Invites' },
       (payload) => {
-        const deleted = payload.old
-        requests.value = requests.value.filter(r => r.id !== deleted.id)
-        invites.value = invites.value.filter(i => i.id !== deleted.id)
+        invites.value = [payload.new, ...invites.value]
+      }
+    )
+    .on(
+      'postgres_changes',
+      { event: 'DELETE', schema: 'public', table: 'Invites' },
+      (payload) => {
+        invites.value = invites.value.filter(i => i.id !== payload.old.id)
       }
     )
     .subscribe()
@@ -240,11 +224,17 @@ const approveRequest = async (req) => {
   req._loading = true
   try {
     const token = crypto.randomUUID()
-    const { error: rpcErr } = await supabase.rpc('approve_access_request', { p_request_id: req.id, p_new_token: token })
-    if (rpcErr) {
-      const { error: directErr } = await supabase.from('invites').update({ status: 'approved', token }).eq('id', req.id)
-      if (directErr) throw directErr
-    }
+    await supabase.from('Invites').insert({
+      email: req.email,
+      role: req.requestedRole,
+      token,
+      used: false,
+      createdBy: req.id,
+    })
+    await supabase.from('LoginRequests').update({
+      status: 'approved',
+      reviewedAt: new Date().toISOString(),
+    }).eq('id', req.id)
     toast.add({ severity: 'success', summary: 'Approved', detail: `Invite link: ${getInviteUrl(token)}`, life: 8000 })
     loadRequests()
     loadInvites()
@@ -256,14 +246,12 @@ const approveRequest = async (req) => {
 const rejectRequest = async (req) => {
   req._loading = true
   try {
-    const { error: rpcErr } = await supabase.rpc('reject_access_request', { p_request_id: req.id })
-    if (rpcErr) {
-      const { error: directErr } = await supabase.from('invites').update({ status: 'rejected' }).eq('id', req.id)
-      if (directErr) throw directErr
-    }
+    await supabase.from('LoginRequests').update({
+      status: 'rejected',
+      reviewedAt: new Date().toISOString(),
+    }).eq('id', req.id)
     toast.add({ severity: 'warn', summary: 'Rejected', detail: `Request from ${req.email} rejected`, life: 3000 })
     loadRequests()
-    loadInvites()
   } catch (err) {
     toast.add({ severity: 'error', summary: 'Error', detail: err.message, life: 3000 })
   } finally { req._loading = false }
@@ -271,11 +259,7 @@ const rejectRequest = async (req) => {
 
 const deleteInvite = async (invite) => {
   try {
-    const { error: rpcErr } = await supabase.rpc('delete_invite', { p_id: invite.id })
-    if (rpcErr) {
-      const { error: directErr } = await supabase.from('invites').delete().eq('id', invite.id)
-      if (directErr) throw directErr
-    }
+    await supabase.from('Invites').delete().eq('id', invite.id)
     toast.add({ severity: 'success', summary: 'Deleted', life: 2000 })
     loadInvites()
   } catch (err) {
@@ -288,20 +272,12 @@ const generateInvite = async () => {
   genLoading.value = true
   try {
     const token = crypto.randomUUID()
-    const { error: rpcErr } = await supabase.rpc('create_admin_invite', {
-      p_email: newInvite.email,
-      p_role: newInvite.role,
-      p_token: token,
+    await supabase.from('Invites').insert({
+      email: newInvite.email || '',
+      role: newInvite.role,
+      token,
+      used: false,
     })
-    if (rpcErr) {
-      const { error: directErr } = await supabase.from('invites').insert({
-        email: newInvite.email || '',
-        role: newInvite.role,
-        token,
-        status: 'pending',
-      })
-      if (directErr) throw directErr
-    }
     toast.add({ severity: 'success', summary: 'Invite link generated', detail: getInviteUrl(token), life: 8000 })
     showGenerate.value = false
     newInvite.role = 'teacher'

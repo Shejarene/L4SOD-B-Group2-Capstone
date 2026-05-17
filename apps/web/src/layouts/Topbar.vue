@@ -40,26 +40,20 @@ let realtimeChannel = null
 
 const loadPendingCount = async () => {
   try {
-    const { data, error } = await supabase.rpc('get_pending_requests')
-    if (error) {
-      const { data: directData } = await supabase
-        .from('invites')
-        .select('id', { count: 'exact', head: true })
-        .eq('status', 'pending')
-        .not('reason', 'is', null)
-      pendingCount.value = directData?.length || 0
-    } else {
-      pendingCount.value = (data || []).length
-    }
+    const { count } = await supabase
+      .from('LoginRequests')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'pending')
+    pendingCount.value = count || 0
   } catch { /* ignore */ }
 }
 
 const setupRealtime = () => {
   realtimeChannel = supabase
-    .channel('topbar-invites')
+    .channel('topbar-login-requests')
     .on(
       'postgres_changes',
-      { event: '*', schema: 'public', table: 'invites' },
+      { event: '*', schema: 'public', table: 'LoginRequests' },
       () => { loadPendingCount() }
     )
     .subscribe()

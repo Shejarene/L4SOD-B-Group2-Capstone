@@ -13,21 +13,20 @@ const api = {
       if (base === 'auth' && id === 'profile') {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return error('Not authenticated')
-        const { data: profile } = await supabase.from('users').select('*').eq('id', user.id).single()
+        const { data: profile } = await supabase.from('Users').select('*').eq('id', user.id).single()
         return success(profile || user)
       }
 
       if (base === 'auth' && path.includes('/invites/verify/')) {
         const token = path.split('/').pop()
-        const { data, error: err } = await supabase.rpc('verify_invite_token', { p_token: token })
+        const { data, error: err } = await supabase.from('Invites').select('*').eq('token', token).eq('used', false).single()
         if (err) throw err
-        if (!data || data.length === 0) return error('Invalid or expired invite')
-        return success({ success: true, data: data[0] })
+        return success({ success: true, data })
       }
 
       if (base === 'auth' && path.includes('/invites/accept/')) {
         const token = path.split('/').pop()
-        const { error: err } = await supabase.rpc('accept_invite', { p_token: token })
+        const { error: err } = await supabase.from('Invites').update({ used: true, usedAt: new Date().toISOString() }).eq('token', token)
         if (err) throw err
         return success({ success: true })
       }
@@ -65,7 +64,7 @@ const api = {
 
       if (base === 'lost-items' && id === 'my-reports') {
         const { data: { user } } = await supabase.auth.getUser()
-        const { data: myData } = await supabase.from('lost_items').select('*').eq('reporter_id', user?.id)
+        const { data: myData } = await supabase.from('LostItems').select('*').eq('reportedBy', user?.id)
         return success(myData || [])
       }
 
@@ -85,42 +84,44 @@ const api = {
       }
 
       if (base === 'marks' && body?.entries) {
-        const { data, error: err } = await supabase.from('marks').insert(body.entries)
+        const { data, error: err } = await supabase.from('Marks').insert(body.entries)
         if (err) throw err
         return success(data)
       }
 
       if (base === 'attendance' && body?.entries) {
-        const { data, error: err } = await supabase.from('attendance').insert(body.entries)
+        const { data, error: err } = await supabase.from('Attendance').insert(body.entries)
         if (err) throw err
         return success(data)
       }
 
       if (base === 'login-requests') {
-        const { data, error: err } = await supabase.rpc('create_access_request', {
-          p_email: body.email,
-          p_role: body.requestedRole,
-          p_first_name: body.firstName,
-          p_last_name: body.lastName,
-          p_phone: body.phone,
-          p_reason: body.reason,
-        })
+        const { data, error: err } = await supabase.from('LoginRequests').insert({
+          firstName: body.firstName,
+          lastName: body.lastName,
+          email: body.email,
+          phone: body.phone,
+          requestedRole: body.requestedRole,
+          reason: body.reason,
+          status: 'pending',
+        }).select()
         if (err) throw err
-        return success(data)
+        return success(data?.[0])
       }
 
       if (base === 'invites') {
-        const { data, error: err } = await supabase.rpc('create_admin_invite', {
-          p_email: body.email || '',
-          p_role: body.role,
-          p_token: body.token || crypto.randomUUID(),
-        })
+        const { data, error: err } = await supabase.from('Invites').insert({
+          email: body.email || '',
+          role: body.role,
+          token: body.token || crypto.randomUUID(),
+          used: false,
+        }).select()
         if (err) throw err
-        return success(data)
+        return success(data?.[0])
       }
 
       const { data: { user } } = await supabase.auth.getUser()
-      const insertData = { ...body, reporter_id: user?.id, created_by: user?.id }
+      const insertData = { ...body, reportedBy: user?.id, createdBy: user?.id }
 
       const { data, error: err } = await supabase.from(table).insert(insertData).select()
       if (err) throw err
@@ -158,26 +159,26 @@ const api = {
 }
 
 const baseMap = {
-  'students': 'students',
-  'teachers': 'teachers',
-  'classes': 'classes',
-  'classrooms': 'classrooms',
-  'subjects': 'subjects',
-  'exams': 'exams',
-  'marks': 'marks',
-  'attendance': 'attendance',
-  'fees': 'fees',
-  'fee-structures': 'fee_structures',
-  'payments': 'payments',
-  'discipline': 'discipline_records',
-  'timetable': 'timetable',
-  'communication': 'messages',
-  'announcements': 'announcements',
-  'lost-items': 'lost_items',
-  'login-requests': 'invites',
-  'users': 'users',
-  'invites': 'invites',
-  'reports': 'reports',
+  'students': 'Students',
+  'teachers': 'Teachers',
+  'classes': 'Classes',
+  'classrooms': 'Classes',
+  'subjects': 'Subjects',
+  'exams': 'Exams',
+  'marks': 'Marks',
+  'attendance': 'Attendance',
+  'fees': 'FeeStructures',
+  'fee-structures': 'FeeStructures',
+  'payments': 'FeePayments',
+  'discipline': 'DisciplinaryRecords',
+  'timetable': 'Timetables',
+  'communication': 'Messages',
+  'announcements': 'Announcements',
+  'lost-items': 'LostItems',
+  'login-requests': 'LoginRequests',
+  'users': 'Users',
+  'invites': 'Invites',
+  'reports': 'Marks',
 }
 
 async function getDashboardStats(section) {
@@ -187,10 +188,10 @@ async function getDashboardStats(section) {
     { count: classCount },
     { count: userCount },
   ] = await Promise.all([
-    supabase.from('students').select('*', { count: 'exact', head: true }),
-    supabase.from('teachers').select('*', { count: 'exact', head: true }),
-    supabase.from('classes').select('*', { count: 'exact', head: true }),
-    supabase.from('users').select('*', { count: 'exact', head: true }),
+    supabase.from('Students').select('*', { count: 'exact', head: true }),
+    supabase.from('Teachers').select('*', { count: 'exact', head: true }),
+    supabase.from('Classes').select('*', { count: 'exact', head: true }),
+    supabase.from('Users').select('*', { count: 'exact', head: true }),
   ])
 
   return success({
