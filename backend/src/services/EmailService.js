@@ -34,7 +34,7 @@ class EmailService {
   async sendEmail({ to, subject, html, attachments }) {
     const config = await this.createTransporter();
     await this.transporter.sendMail({
-      from: `"SchoolMS" <${config.from}>`,
+      from: `"Acadex" <${config.from}>`,
       to,
       subject,
       html,
@@ -46,7 +46,7 @@ class EmailService {
     const config = await this.createTransporter();
     const promises = recipients.map(to =>
       this.transporter.sendMail({
-        from: `"SchoolMS" <${config.from}>`,
+        from: `"Acadex" <${config.from}>`,
         to,
         subject,
         html,
@@ -60,7 +60,7 @@ class EmailService {
       <h2>Report Card - ${student.user.firstName} ${student.user.lastName}</h2>
       <p>Dear Parent/Guardian,</p>
       <p>Please find attached the report card for ${student.user.firstName} ${student.user.lastName}.</p>
-      <p>Regards,<br/>School Management System</p>
+      <p>Regards,<br/>Acadex</p>
     `;
     await this.sendEmail({
       to: student.user.email,

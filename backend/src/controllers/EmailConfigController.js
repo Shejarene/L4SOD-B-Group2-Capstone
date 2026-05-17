@@ -7,7 +7,7 @@ const testEmail = async (req, res, next) => {
     if (!to) return res.status(400).json({ success: false, message: 'Recipient email is required' });
     await emailService.sendEmail({
       to,
-      subject: 'Test Email from SchoolMS',
+      subject: 'Test Email from Acadex',
       html: '<h2>Email Configuration Works!</h2><p>Your SMTP settings are configured correctly.</p>',
     });
     response.success(res, null, 'Test email sent successfully');

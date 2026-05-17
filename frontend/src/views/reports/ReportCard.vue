@@ -124,7 +124,7 @@ const downloadPdf = () => {
   doc.setFontSize(20)
   doc.text('REPORT CARD', pageWidth / 2, 25, { align: 'center' })
   doc.setFontSize(12)
-  doc.text('School Management System', pageWidth / 2, 33, { align: 'center' })
+  doc.text('Acadex', pageWidth / 2, 33, { align: 'center' })
 
   let y = 45
   doc.setFontSize(11)

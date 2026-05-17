@@ -1,7 +1,7 @@
-# School Management System - Project Remembrance
+# Acadex - Project Remembrance
 
 ## Vision
-A production-ready school management platform serving K-12 institutions with role-based access for 9 user roles.
+Acadex is a production-ready school management platform serving K-12 institutions with role-based access for 9 user roles.
 
 ## Tech Stack
 - **Frontend**: Vue 3 (Composition API) + Vite + Pinia + Vue Router + Tailwind CSS + PrimeVue

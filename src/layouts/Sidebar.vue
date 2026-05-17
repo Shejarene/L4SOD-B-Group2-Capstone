@@ -5,7 +5,7 @@
   >
     <div class="flex items-center h-16 px-4 border-b border-gray-200 dark:border-gray-700">
       <i class="pi pi-school text-2xl text-primary-600 mr-3"></i>
-      <span v-if="!store.sidebarCollapsed" class="font-bold text-lg text-gray-900 dark:text-white truncate">SchoolMS</span>
+      <span v-if="!store.sidebarCollapsed" class="font-bold text-lg text-gray-900 dark:text-white truncate">Acadex</span>
     </div>
     <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
       <router-link v-for="item in filteredMenu" :key="item.to" :to="item.to"

@@ -1,6 +1,6 @@
-# School Management System
+# Acadex
 
-A comprehensive, production-ready school management system with Vue 3 frontend and Node.js/Express backend.
+Acadex is a comprehensive, production-ready school management platform with Vue 3 frontend and Node.js/Express backend.
 
 ## Tech Stack
 

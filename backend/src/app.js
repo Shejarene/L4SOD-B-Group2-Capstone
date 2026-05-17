@@ -50,7 +50,7 @@ app.use('/api/import', require('./routes/import'));
 app.use('/api/email', require('./routes/email'));
 
 app.get('/api/health', (req, res) => {
-  res.json({ success: true, message: 'School Management API is running', timestamp: new Date().toISOString() });
+  res.json({ success: true, message: 'Acadex API is running', timestamp: new Date().toISOString() });
 });
 
 app.use(errorHandler);

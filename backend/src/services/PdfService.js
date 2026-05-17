@@ -14,7 +14,7 @@ class PdfService {
 
       doc.fontSize(20).font('Helvetica-Bold').text('REPORT CARD', { align: 'center' });
       doc.moveDown(0.5);
-      doc.fontSize(12).font('Helvetica-Bold').text('School Management System', { align: 'center' });
+      doc.fontSize(12).font('Helvetica-Bold').text('Acadex', { align: 'center' });
       doc.moveDown(1.5);
 
       const leftX = 50;
