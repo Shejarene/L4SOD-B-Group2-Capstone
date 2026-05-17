@@ -10,9 +10,7 @@
     "dev": "npm run dev --workspace=apps/web",
     "build": "npm run build --workspace=apps/web",
     "preview": "npm run preview --workspace=apps/web",
-    "db:migrate": "node scripts/run-migrations.js",
-    "db:seed": "node scripts/seed-supabase.js",
-    "lint": "npm run lint --workspace=apps/web"
+    "db:seed": "node scripts/seed-supabase.js"
   },
   "engines": {
     "node": ">=18.0.0",
