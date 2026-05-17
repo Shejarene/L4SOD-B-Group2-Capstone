@@ -11,7 +11,7 @@ if (!SUPABASE_SERVICE_ROLE) {
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE)
 
-const demoUsers = [
+const adminUsers = [
   { email: 'admin@school.com', password: 'admin123', role: 'super_admin', firstName: 'Super', lastName: 'Admin', phone: '+250780000001' },
   { email: 'principal@school.com', password: 'admin123', role: 'principal', firstName: 'John', lastName: 'Principal', phone: '+250780000002' },
   { email: 'dos@school.com', password: 'admin123', role: 'dos', firstName: 'Jane', lastName: 'Director', phone: '+250780000003' },
@@ -23,7 +23,7 @@ const demoUsers = [
 async function seed() {
   console.log('Seeding Supabase with demo users...\n')
 
-  for (const u of demoUsers) {
+  for (const u of adminUsers) {
     const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
       email: u.email,
       password: u.password,
@@ -33,7 +33,30 @@ async function seed() {
 
     if (authError) {
       if (authError.message.includes('already exists')) {
-        console.log(`⏭️  ${u.email} already exists`)
+        console.log(`⏭️  ${u.email} already exists in auth`)
+        const { data: existingUsers } = await supabase.from('Users').select('id').eq('email', u.email)
+        if (existingUsers && existingUsers.length > 0) {
+          console.log(`   Profile exists in Users table`)
+          continue
+        }
+        const { data: authUsers } = await supabase.auth.admin.listUsers()
+        const found = authUsers?.users?.find(x => x.email === u.email)
+        if (found) {
+          const { error: dbError } = await supabase.from('Users').insert({
+            id: found.id,
+            email: u.email,
+            role: u.role,
+            firstName: u.firstName,
+            lastName: u.lastName,
+            phone: u.phone,
+          })
+          if (dbError) {
+            console.error(`   ❌ Profile insert: ${dbError.message}`)
+          } else {
+            console.log(`   ✅ Created profile in Users table`)
+          }
+          continue
+        }
         continue
       }
       console.error(`❌ ${u.email}: ${authError.message}`)
@@ -43,13 +66,13 @@ async function seed() {
     const userId = authUser.user.id
 
     const { error: dbError } = await supabase
-      .from('users')
+      .from('Users')
       .insert({
         id: userId,
         email: u.email,
         role: u.role,
-        first_name: u.firstName,
-        last_name: u.lastName,
+        firstName: u.firstName,
+        lastName: u.lastName,
         phone: u.phone,
       })
 
@@ -60,7 +83,7 @@ async function seed() {
     }
   }
 
-  console.log('\nDone! Login with any demo account:')
+  console.log('\nDone! Login with:')
   console.log('  admin@school.com / admin123')
   console.log('  principal@school.com / admin123')
   console.log('  teacher@school.com / admin123')

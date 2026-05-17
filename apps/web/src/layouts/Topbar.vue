@@ -16,7 +16,6 @@
       <router-link to="/app/help" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
         <i class="pi pi-question-circle text-xl text-gray-600 dark:text-gray-400"></i>
       </router-link>
-      <span v-if="auth.isDemo" class="px-2 py-0.5 bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300 rounded text-xs font-medium">DEMO</span>
       <span class="px-3 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 rounded-full text-sm font-medium capitalize">
         {{ auth.userRole?.replace('_', ' ') }}
       </span>
