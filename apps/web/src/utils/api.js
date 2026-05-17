@@ -115,6 +115,7 @@ const api = {
           role: body.role,
           token: body.token || crypto.randomUUID(),
           used: false,
+          createdBy: '00000000-0000-0000-0000-000000000000',
         }).select()
         if (err) throw err
         return success(data?.[0])

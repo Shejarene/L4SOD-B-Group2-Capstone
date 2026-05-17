@@ -229,7 +229,7 @@ const approveRequest = async (req) => {
       role: req.requestedRole,
       token,
       used: false,
-      createdBy: req.id,
+      createdBy: '00000000-0000-0000-0000-000000000000',
     })
     await supabase.from('LoginRequests').update({
       status: 'approved',
@@ -277,6 +277,7 @@ const generateInvite = async () => {
       role: newInvite.role,
       token,
       used: false,
+      createdBy: '00000000-0000-0000-0000-000000000000',
     })
     toast.add({ severity: 'success', summary: 'Invite link generated', detail: getInviteUrl(token), life: 8000 })
     showGenerate.value = false
