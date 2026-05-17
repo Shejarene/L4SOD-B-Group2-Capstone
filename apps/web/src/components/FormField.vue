@@ -1,15 +1,15 @@
 <template>
   <div class="flex flex-col gap-1.5">
-    <label v-if="label" :for="name" class="text-sm font-medium text-gray-700 dark:text-gray-300">
-      {{ label }} <span v-if="required" class="text-red-500">*</span>
+    <label v-if="label" :for="name" class="text-sm font-semibold text-[#6b6560] dark:text-[#8a857d]">
+      {{ label }} <span v-if="required" class="text-[#e07a5f]">*</span>
     </label>
     <slot />
-    <transition name="fade">
+    <transition name="fade-warm">
       <small v-if="error" class="text-red-500 flex items-center gap-1">
         <i class="pi pi-exclamation-circle text-xs"></i>{{ error }}
       </small>
     </transition>
-    <small v-if="hint && !error" class="text-gray-400 dark:text-gray-500">{{ hint }}</small>
+    <small v-if="hint && !error" class="text-[#b5b0a8] dark:text-[#6b6560]">{{ hint }}</small>
   </div>
 </template>
 

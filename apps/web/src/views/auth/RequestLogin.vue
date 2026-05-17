@@ -1,18 +1,23 @@
 <template>
-  <div class="min-h-screen flex bg-gradient-to-br from-primary-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-    <div class="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center bg-gradient-to-br from-primary-600 to-primary-800">
-      <div class="absolute inset-0 opacity-10">
-        <div class="absolute top-10 left-10 w-72 h-72 bg-white rounded-full blur-3xl"></div>
-        <div class="absolute bottom-10 right-10 w-96 h-96 bg-blue-300 rounded-full blur-3xl"></div>
+  <div class="min-h-screen flex bg-[#faf8f5] dark:bg-[#1a1816]">
+    <!-- Left side -->
+    <div class="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center bg-gradient-to-br from-[#e07a5f] via-[#d4694f] to-[#f2cc8f]">
+      <div class="absolute inset-0">
+        <div class="absolute top-24 left-24 w-80 h-80 bg-white/10 rounded-full blur-3xl animate-float"></div>
+        <div class="absolute bottom-24 right-24 w-96 h-96 bg-white/15 rounded-full blur-3xl animate-float-delay"></div>
       </div>
+
       <div class="relative text-white px-16 max-w-lg">
-        <i class="pi pi-user-plus text-6xl mb-8 block"></i>
-        <h2 class="text-4xl font-bold mb-4 leading-tight">Need Access?<br/>Request an Account</h2>
-        <p class="text-primary-100 text-lg mb-8 leading-relaxed">
-          Fill in the form and the administration will review your request. You'll receive an email once your account is ready.
+        <div class="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-white/20 backdrop-blur-sm mb-8">
+          <i class="pi pi-user-plus text-4xl"></i>
+        </div>
+        <h2 class="text-5xl font-bold mb-6 leading-tight">Join<br/>Acadex</h2>
+        <p class="text-white/80 text-lg mb-10 leading-relaxed">
+          Request access and our team will set up your account. It only takes a moment.
         </p>
+
         <div class="space-y-3">
-          <div v-for="tip in tips" :key="tip" class="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-xl px-5 py-3">
+          <div v-for="tip in tips" :key="tip" class="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-2xl px-5 py-3">
             <i class="pi pi-check-circle text-green-300"></i>
             <span class="text-sm">{{ tip }}</span>
           </div>
@@ -20,84 +25,89 @@
       </div>
     </div>
 
-    <div class="w-full lg:w-1/2 flex items-center justify-center p-8">
+    <!-- Right side -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-8">
       <div class="w-full max-w-lg">
-        <div class="text-center mb-8">
-          <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary-100 dark:bg-primary-900 mb-4">
-            <i class="pi pi-user-plus text-3xl text-primary-600"></i>
+        <div class="lg:hidden flex items-center justify-center mb-8">
+          <div class="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-[#e07a5f]/10">
+            <i class="pi pi-user-plus text-3xl text-[#e07a5f]"></i>
           </div>
-          <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Request Account</h1>
-          <p class="text-gray-500 dark:text-gray-400 mt-2">Tell us about yourself</p>
         </div>
 
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-8">
+        <div class="text-center mb-8">
+          <h1 class="text-3xl font-bold text-[#2d2a26] dark:text-[#f5f0ea]">Request Access</h1>
+          <p class="text-[#8a857d] mt-2">Tell us about yourself</p>
+        </div>
+
+        <div class="bg-white dark:bg-[#242220] rounded-3xl shadow-warm border border-[#e8e4de] dark:border-[#3a3632] p-8">
+          <!-- Success -->
           <div v-if="submitted" class="text-center py-8">
-            <div class="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center mx-auto mb-4">
-              <i class="pi pi-check-circle text-4xl text-green-600"></i>
+            <div class="w-20 h-20 rounded-3xl bg-[#81b29a]/15 flex items-center justify-center mx-auto mb-5">
+              <i class="pi pi-check-circle text-4xl text-[#81b29a]"></i>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Request Submitted!</h3>
-            <p class="text-gray-500 dark:text-gray-400 mb-6">The administration will review your request. We'll notify you once your account is ready.</p>
-            <Button label="Back to Home" icon="pi pi-home" @click="router.push('/')" />
+            <h3 class="text-xl font-bold text-[#2d2a26] dark:text-[#f5f0ea] mb-2">Request Submitted!</h3>
+            <p class="text-[#8a857d] mb-6">We'll review your request and get back to you soon.</p>
+            <Button label="Back to Home" icon="pi pi-home" class="btn-primary" @click="router.push('/')" />
           </div>
 
-          <form v-else @submit.prevent="handleSubmit" class="space-y-4">
+          <!-- Form -->
+          <form v-else @submit.prevent="handleSubmit" class="space-y-5">
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">First Name</label>
-                <InputText v-model="form.firstName" class="w-full" placeholder="Your first name" :class="{ 'p-invalid': errors.firstName }" />
-                <small v-if="errors.firstName" class="text-red-500">{{ errors.firstName }}</small>
+                <label class="block text-sm font-semibold text-[#6b6560] dark:text-[#8a857d] mb-2">First Name</label>
+                <input v-model="form.firstName" class="input-warm" placeholder="First name" :class="{ 'error': errors.firstName }" />
+                <small v-if="errors.firstName" class="text-red-500 text-xs mt-1">{{ errors.firstName }}</small>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Last Name</label>
-                <InputText v-model="form.lastName" class="w-full" placeholder="Your last name" :class="{ 'p-invalid': errors.lastName }" />
-                <small v-if="errors.lastName" class="text-red-500">{{ errors.lastName }}</small>
+                <label class="block text-sm font-semibold text-[#6b6560] dark:text-[#8a857d] mb-2">Last Name</label>
+                <input v-model="form.lastName" class="input-warm" placeholder="Last name" :class="{ 'error': errors.lastName }" />
+                <small v-if="errors.lastName" class="text-red-500 text-xs mt-1">{{ errors.lastName }}</small>
               </div>
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
-              <InputText v-model="form.email" type="email" class="w-full" placeholder="you@example.com" :class="{ 'p-invalid': errors.email }" />
-              <small v-if="errors.email" class="text-red-500">{{ errors.email }}</small>
+              <label class="block text-sm font-semibold text-[#6b6560] dark:text-[#8a857d] mb-2">Email</label>
+              <input v-model="form.email" type="email" class="input-warm" placeholder="you@example.com" :class="{ 'error': errors.email }" />
+              <small v-if="errors.email" class="text-red-500 text-xs mt-1">{{ errors.email }}</small>
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone</label>
-              <InputText v-model="form.phone" class="w-full" placeholder="+250 7XX XXX XXX" />
+              <label class="block text-sm font-semibold text-[#6b6560] dark:text-[#8a857d] mb-2">Phone</label>
+              <input v-model="form.phone" class="input-warm" placeholder="+250 7XX XXX XXX" />
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">I am a...</label>
-              <div class="grid grid-cols-2 gap-2">
+              <label class="block text-sm font-semibold text-[#6b6560] dark:text-[#8a857d] mb-2">I am a...</label>
+              <div class="grid grid-cols-3 gap-2">
                 <button
                   v-for="role in roleOptions"
                   :key="role.value"
                   type="button"
                   @click="form.requestedRole = role.value"
-                  class="p-3 rounded-xl border text-left transition-all duration-150"
+                  class="p-3 rounded-2xl border-2 text-center transition-all duration-200"
                   :class="form.requestedRole === role.value
-                    ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
-                    : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'"
+                    ? 'border-[#e07a5f] bg-[#e07a5f]/10 text-[#e07a5f]'
+                    : 'border-[#e8e4de] dark:border-[#3a3632] hover:border-[#e07a5f]/40'"
                 >
                   <i :class="role.icon" class="text-lg"></i>
-                  <p class="text-sm font-medium mt-1">{{ role.label }}</p>
-                  <p class="text-[10px] text-gray-400">{{ role.sub }}</p>
+                  <p class="text-sm font-semibold mt-1">{{ role.label }}</p>
                 </button>
               </div>
-              <small v-if="errors.requestedRole" class="text-red-500">{{ errors.requestedRole }}</small>
+              <small v-if="errors.requestedRole" class="text-red-500 text-xs mt-1">{{ errors.requestedRole }}</small>
             </div>
 
             <div v-if="isAdminRole">
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Administration Role</label>
+              <label class="block text-sm font-semibold text-[#6b6560] dark:text-[#8a857d] mb-2">Administration Role</label>
               <div class="flex flex-wrap gap-2">
                 <button
                   v-for="ad in adminRoles"
                   :key="ad.value"
                   type="button"
                   @click="form.requestedRole = ad.value"
-                  class="px-4 py-2 rounded-xl border text-sm font-medium transition-all"
+                  class="px-4 py-2 rounded-2xl border-2 text-sm font-semibold transition-all duration-200"
                   :class="form.requestedRole === ad.value
-                    ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
-                    : 'border-gray-200 dark:border-gray-600 hover:border-gray-300'"
+                    ? 'border-[#e07a5f] bg-[#e07a5f]/10 text-[#e07a5f]'
+                    : 'border-[#e8e4de] dark:border-[#3a3632] hover:border-[#e07a5f]/40'"
                 >
                   {{ ad.label }}
                 </button>
@@ -105,16 +115,19 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Reason for request</label>
-              <Textarea v-model="form.reason" rows="3" class="w-full" placeholder="Tell us why you need access..." />
+              <label class="block text-sm font-semibold text-[#6b6560] dark:text-[#8a857d] mb-2">Reason</label>
+              <textarea v-model="form.reason" rows="3" class="input-warm resize-none" placeholder="Tell us why you need access..." />
             </div>
 
-            <Button type="submit" label="Submit Request" icon="pi pi-send" class="w-full h-12 rounded-xl" :loading="loading" />
+            <button type="submit" class="btn-primary w-full h-12 text-base" :disabled="loading">
+              <i v-if="loading" class="pi pi-spin pi-spinner"></i>
+              <span>{{ loading ? 'Submitting...' : 'Submit Request' }}</span>
+            </button>
           </form>
 
-          <p class="text-center text-sm text-gray-400 mt-4">
+          <p class="text-center text-sm text-[#8a857d] mt-6 pt-6 border-t border-[#e8e4de] dark:border-[#3a3632]">
             Already have an account?
-            <router-link to="/login" class="text-primary-600 hover:underline font-medium">Sign in</router-link>
+            <router-link to="/login" class="text-[#e07a5f] font-semibold hover:underline">Sign in</router-link>
           </p>
         </div>
       </div>
@@ -126,8 +139,6 @@
 import { ref, reactive, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '../../utils/supabase'
-import InputText from 'primevue/inputtext'
-import Textarea from 'primevue/textarea'
 import Button from 'primevue/button'
 import { useToast } from 'primevue/usetoast'
 
@@ -141,10 +152,16 @@ const form = reactive({
   requestedRole: '', reason: '',
 })
 
+const tips = [
+  'Quick and easy process',
+  'Admin approval required',
+  'Get notified when ready',
+]
+
 const roleOptions = [
-  { value: 'student', label: 'Student', icon: 'pi pi-user', sub: 'Enrolled learner' },
-  { value: 'teacher', label: 'Teacher', icon: 'pi pi-users', sub: 'Faculty member' },
-  { value: 'administration', label: 'Administration', icon: 'pi pi-briefcase', sub: 'Staff member' },
+  { value: 'student', label: 'Student', icon: 'pi pi-user' },
+  { value: 'teacher', label: 'Teacher', icon: 'pi pi-users' },
+  { value: 'administration', label: 'Admin', icon: 'pi pi-briefcase' },
 ]
 
 const adminRoles = [

@@ -1,40 +1,50 @@
 <template>
-  <header class="h-16 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-100 dark:border-gray-800 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-20">
+  <header class="h-16 bg-white/70 dark:bg-[#242220]/70 backdrop-blur-xl border-b border-[#e8e4de] dark:border-[#3a3632] flex items-center justify-between px-4 sm:px-6 sticky top-0 z-20">
+    <!-- Left: sidebar toggle + greeting -->
     <div class="flex items-center gap-4">
-      <button @click="store.toggleSidebar()" class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-        <i class="pi pi-bars text-lg text-gray-600 dark:text-gray-400"></i>
+      <button @click="store.toggleSidebar()" class="p-2 rounded-xl hover:bg-[#f5f0ea] dark:hover:bg-[#2a2826] transition-colors">
+        <i class="pi pi-bars text-lg text-[#6b6560] dark:text-[#8a857d]"></i>
       </button>
-      <div class="hidden sm:flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-        <i class="pi pi-map-marker text-xs"></i>
-        <span>Acadex School Management</span>
+      <div class="hidden sm:block">
+        <p class="text-sm font-semibold text-[#2d2a26] dark:text-[#f5f0ea]">{{ greeting }}</p>
+        <p class="text-xs text-[#8a857d] dark:text-[#6b6560]">{{ currentDate }}</p>
       </div>
     </div>
 
+    <!-- Right: actions + user -->
     <div class="flex items-center gap-2 sm:gap-3">
-      <router-link v-if="auth.isAdmin" to="/app/invites" class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors relative">
-        <i class="pi pi-bell text-lg text-gray-600 dark:text-gray-400"></i>
-        <span v-if="pendingCount > 0" class="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold">{{ pendingCount > 9 ? '9+' : pendingCount }}</span>
+      <!-- Notifications -->
+      <router-link v-if="auth.isAdmin" to="/app/invites" class="p-2 rounded-xl hover:bg-[#f5f0ea] dark:hover:bg-[#2a2826] transition-colors relative">
+        <i class="pi pi-bell text-lg text-[#6b6560] dark:text-[#8a857d]"></i>
+        <span v-if="pendingCount > 0" class="absolute top-1 right-1 w-4 h-4 bg-[#e07a5f] text-white text-[10px] rounded-full flex items-center justify-center font-bold">{{ pendingCount > 9 ? '9+' : pendingCount }}</span>
       </router-link>
 
-      <button @click="store.toggleDarkMode()" class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-        <i class="pi text-lg" :class="store.darkMode ? 'pi-sun text-yellow-500' : 'pi-moon text-gray-600 dark:text-gray-400'"></i>
+      <!-- Dark mode toggle -->
+      <button @click="store.toggleDarkMode()" class="p-2 rounded-xl hover:bg-[#f5f0ea] dark:hover:bg-[#2a2826] transition-colors">
+        <i class="pi text-lg" :class="store.darkMode ? 'pi-sun text-[#f2cc8f]' : 'pi-moon text-[#6b6560] dark:text-[#8a857d]'"></i>
       </button>
 
-      <router-link to="/app/help" class="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-        <i class="pi pi-question-circle text-lg text-gray-600 dark:text-gray-400"></i>
+      <!-- Help -->
+      <router-link to="/app/help" class="p-2 rounded-xl hover:bg-[#f5f0ea] dark:hover:bg-[#2a2826] transition-colors">
+        <i class="pi pi-question-circle text-lg text-[#6b6560] dark:text-[#8a857d]"></i>
       </router-link>
 
-      <div class="hidden sm:flex items-center gap-3 pl-3 ml-1 border-l border-gray-200 dark:border-gray-700">
+      <!-- Divider -->
+      <div class="hidden sm:block w-px h-8 bg-[#e8e4de] dark:bg-[#3a3632]"></div>
+
+      <!-- User -->
+      <div class="hidden sm:flex items-center gap-3 pl-2">
         <div class="text-right">
-          <p class="text-sm font-medium text-gray-900 dark:text-white">{{ auth.fullName }}</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 capitalize">{{ auth.userRole?.replace('_', ' ') }}</p>
+          <p class="text-sm font-semibold text-[#2d2a26] dark:text-[#f5f0ea]">{{ auth.fullName }}</p>
+          <p class="text-xs text-[#8a857d] capitalize">{{ auth.userRole?.replace('_', ' ') }}</p>
         </div>
-        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-primary-600 to-indigo-600 flex items-center justify-center text-sm font-medium text-white shadow-lg shadow-primary-200 dark:shadow-primary-900/30">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-[#e07a5f] to-[#f2cc8f] flex items-center justify-center text-sm font-bold text-white shadow-md shadow-[#e07a5f]/20">
           {{ auth.initials }}
         </div>
       </div>
 
-      <button @click="logout" class="p-2 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-500 hover:text-red-600 dark:hover:text-red-400 transition-colors" v-tooltip.left="'Sign Out'">
+      <!-- Sign out -->
+      <button @click="logout" class="p-2 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 text-[#6b6560] hover:text-[#e07a5f] dark:hover:text-[#e07a5f] transition-colors" v-tooltip.left="'Sign Out'">
         <i class="pi pi-sign-out text-lg"></i>
       </button>
     </div>
@@ -42,7 +52,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useAppStore } from '../stores/app'
 import { useAuthStore } from '../stores/auth'
 import { supabase } from '../utils/supabase'
@@ -51,6 +61,21 @@ const store = useAppStore()
 const auth = useAuthStore()
 const pendingCount = ref(0)
 let realtimeChannel = null
+
+const greeting = computed(() => {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Good morning'
+  if (hour < 17) return 'Good afternoon'
+  return 'Good evening'
+})
+
+const currentDate = computed(() => {
+  return new Date().toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric'
+  })
+})
 
 const loadPendingCount = async () => {
   try {

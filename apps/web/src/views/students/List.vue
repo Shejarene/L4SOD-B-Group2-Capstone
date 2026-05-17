@@ -1,84 +1,116 @@
 <template>
   <div>
-    <DataTable :value="students" :loading="loading" :totalRecords="totalRecords" :rows="perPage" @page="onPage">
-      <template #header>
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h2 class="text-xl font-bold text-gray-900 dark:text-white">Students</h2>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ totalRecords }} students total</p>
-          </div>
-          <div class="flex flex-wrap gap-2 w-full sm:w-auto">
-            <div class="relative flex-1 sm:flex-initial">
-              <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-              <input
-                v-model="searchQuery"
-                type="text"
-                placeholder="Search students..."
-                class="input-field pl-10 h-10"
-                @input="onSearch"
-              />
-            </div>
-            <select v-model="statusFilter" class="input-field h-10 w-full sm:w-auto" @change="loadStudents">
-              <option value="">All Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-            </select>
-            <Button label="Export" icon="pi pi-download" class="p-button-outlined h-10" @click="exportCSV" />
-            <Button v-if="canManage" label="Add Student" icon="pi pi-plus" class="h-10" @click="showAddDialog = true" />
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+      <div>
+        <h1 class="page-title mb-0">Students</h1>
+        <p class="page-subtitle">{{ totalRecords }} students in your school</p>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <Button v-if="canManage" label="Add Student" icon="pi pi-plus" class="btn-primary" @click="showAddDialog = true" />
+      </div>
+    </div>
+
+    <!-- Filters bar -->
+    <div class="card mb-6">
+      <div class="flex flex-col sm:flex-row gap-3">
+        <div class="relative flex-1">
+          <i class="pi pi-search absolute left-4 top-1/2 -translate-y-1/2 text-[#b5b0a8]"></i>
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="Search by name or admission number..."
+            class="input-warm pl-11"
+            @input="onSearch"
+          />
+        </div>
+        <select v-model="statusFilter" class="input-warm sm:w-40" @change="loadStudents">
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        <Button label="Export" icon="pi pi-download" class="btn-secondary" @click="exportCSV" />
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card overflow-hidden">
+      <!-- Loading -->
+      <div v-if="loading" class="space-y-3 py-4">
+        <div v-for="i in 5" :key="i" class="flex gap-4 animate-pulse">
+          <div v-for="j in 4" :key="j" class="skeleton-warm h-12 flex-1"></div>
+        </div>
+      </div>
+
+      <!-- Empty -->
+      <div v-else-if="students.length === 0" class="empty-warm">
+        <div class="empty-warm-icon">
+          <i class="pi pi-users text-3xl text-[#b5b0a8]"></i>
+        </div>
+        <h3 class="text-lg font-bold text-[#2d2a26] dark:text-[#f5f0ea] mb-2">No students found</h3>
+        <p class="text-[#8a857d] max-w-sm mb-4">Try adjusting your search or filters, or add a new student to get started.</p>
+        <Button v-if="canManage" label="Add Student" icon="pi pi-plus" class="btn-primary" @click="showAddDialog = true" />
+      </div>
+
+      <!-- Data -->
+      <div v-else>
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr>
+                <th class="text-left py-3 px-4 text-xs font-bold text-[#8a857d] uppercase tracking-wider">Student</th>
+                <th class="text-left py-3 px-4 text-xs font-bold text-[#8a857d] uppercase tracking-wider">Admission No</th>
+                <th class="text-left py-3 px-4 text-xs font-bold text-[#8a857d] uppercase tracking-wider">Class</th>
+                <th class="text-left py-3 px-4 text-xs font-bold text-[#8a857d] uppercase tracking-wider">Status</th>
+                <th class="text-right py-3 px-4 text-xs font-bold text-[#8a857d] uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="student in students" :key="student.id" class="border-t border-[#f0ebe5] dark:border-[#3a3632] hover:bg-[#faf8f5] dark:hover:bg-[#2a2826] transition-colors">
+                <td class="py-3 px-4">
+                  <router-link :to="`/app/students/${student.id}`" class="flex items-center gap-3 group">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#e07a5f]/20 to-[#f2cc8f]/20 flex items-center justify-center text-sm font-bold text-[#e07a5f] flex-shrink-0">
+                      {{ getInitials(student) }}
+                    </div>
+                    <span class="text-sm font-semibold text-[#2d2a26] dark:text-[#f5f0ea] group-hover:text-[#e07a5f] transition-colors">
+                      {{ getName(student) }}
+                    </span>
+                  </router-link>
+                </td>
+                <td class="py-3 px-4">
+                  <span class="font-mono text-sm text-[#8a857d]">{{ student.admissionNumber || '—' }}</span>
+                </td>
+                <td class="py-3 px-4">
+                  <span class="text-sm text-[#6b6560] dark:text-[#8a857d]">{{ student.class?.name || '—' }}</span>
+                </td>
+                <td class="py-3 px-4">
+                  <span class="badge-warm" :class="student.status === 'active' ? 'badge-success' : 'badge-danger'">
+                    <span class="w-1.5 h-1.5 rounded-full" :class="student.status === 'active' ? 'bg-[#81b29a]' : 'bg-[#e07a5f]'"></span>
+                    {{ student.status || 'active' }}
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right">
+                  <Button icon="pi pi-eye" class="p-button-rounded p-button-text p-button-sm" @click="router.push(`/app/students/${student.id}`)" v-tooltip="'View'" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-between py-4 border-t border-[#f0ebe5] dark:border-[#3a3632]">
+          <p class="text-sm text-[#8a857d]">
+            Showing {{ ((page - 1) * perPage) + 1 }} to {{ Math.min(page * perPage, totalRecords) }} of {{ totalRecords }}
+          </p>
+          <div class="flex gap-2">
+            <Button label="Previous" icon="pi pi-chevron-left" class="btn-secondary" :disabled="page === 1" @click="goToPage(page - 1)" />
+            <Button label="Next" icon="pi pi-chevron-right" iconPos="right" class="btn-secondary" :disabled="page * perPage >= totalRecords" @click="goToPage(page + 1)" />
           </div>
         </div>
-      </template>
+      </div>
+    </div>
 
-      <Column field="admissionNumber" header="Admission No" sortable style="min-width: 120px">
-        <template #body="{ data }">
-          <span class="font-mono text-sm text-gray-600 dark:text-gray-400">{{ data.admissionNumber }}</span>
-        </template>
-      </Column>
-
-      <Column header="Name" sortable style="min-width: 180px">
-        <template #body="{ data }">
-          <router-link :to="`/app/students/${data.id}`" class="flex items-center gap-3 group">
-            <div class="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center text-xs font-medium text-primary-700 dark:text-primary-400 flex-shrink-0">
-              {{ getInitials(data) }}
-            </div>
-            <span class="text-sm font-medium text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-              {{ getName(data) }}
-            </span>
-          </router-link>
-        </template>
-      </Column>
-
-      <Column field="class.name" header="Class" sortable style="min-width: 100px">
-        <template #body="{ data }">
-          <span class="text-sm text-gray-600 dark:text-gray-400">{{ data.class?.name || '—' }}</span>
-        </template>
-      </Column>
-
-      <Column field="section.name" header="Section" sortable style="min-width: 80px">
-        <template #body="{ data }">
-          <span class="text-sm text-gray-600 dark:text-gray-400">{{ data.section?.name || '—' }}</span>
-        </template>
-      </Column>
-
-      <Column field="status" header="Status" sortable style="min-width: 100px">
-        <template #body="{ data }">
-          <span class="badge" :class="data.status === 'active' ? 'badge-success' : 'badge-danger'">
-            <span class="w-1.5 h-1.5 rounded-full" :class="data.status === 'active' ? 'bg-green-500' : 'bg-red-500'"></span>
-            {{ data.status || 'active' }}
-          </span>
-        </template>
-      </Column>
-
-      <Column header="Actions" style="min-width: 80px" :exportable="false">
-        <template #body="{ data }">
-          <div class="flex items-center gap-1">
-            <Button icon="pi pi-eye" class="p-button-rounded p-button-text p-button-sm" @click="router.push(`/app/students/${data.id}`)" v-tooltip="'View'" />
-            <Button v-if="canManage" icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-sm" @click="editStudent(data)" v-tooltip="'Edit'" />
-          </div>
-        </template>
-      </Column>
-    </DataTable>
-
+    <!-- Add/Edit Dialog -->
     <Dialog v-model:visible="showAddDialog" :header="editingStudent ? 'Edit Student' : 'Add Student'" :modal="true" class="w-full md:w-2/3 max-h-[90vh] overflow-y-auto">
       <StudentForm :student="editingStudent" @saved="onStudentSaved" @cancel="showAddDialog = false; editingStudent = null" />
     </Dialog>
@@ -90,8 +122,6 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import api from '../../utils/api'
-import DataTable from '../../components/DataTable.vue'
-import Column from 'primevue/column'
 import Button from 'primevue/button'
 import Dialog from 'primevue/dialog'
 import StudentForm from './Form.vue'
@@ -139,9 +169,8 @@ const loadStudents = async () => {
   }
 }
 
-const onPage = (event) => {
-  page.value = event.page + 1
-  perPage.value = event.rows
+const goToPage = (p) => {
+  page.value = p
   loadStudents()
 }
 
@@ -159,23 +188,10 @@ const onStudentSaved = () => {
   loadStudents()
 }
 
-const editStudent = (student) => {
-  editingStudent.value = student
-  showAddDialog.value = true
-}
-
 const exportCSV = () => {
-  const csv = [['Admission No', 'First Name', 'Last Name', 'Email', 'Phone', 'Class', 'Status']]
+  const csv = [['Name', 'Admission No', 'Class', 'Status']]
   students.value.forEach(s => {
-    csv.push([
-      s.admissionNumber,
-      s.user?.firstName || '',
-      s.user?.lastName || '',
-      s.user?.email || '',
-      s.user?.phone || '',
-      s.class?.name || '',
-      s.status || 'active'
-    ])
+    csv.push([getName(s), s.admissionNumber || '', s.class?.name || '', s.status || 'active'])
   })
   const blob = new Blob([csv.map(r => r.join(',')).join('\n')], { type: 'text/csv' })
   const url = URL.createObjectURL(blob)
