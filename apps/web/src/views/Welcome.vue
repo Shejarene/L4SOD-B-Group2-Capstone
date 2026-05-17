@@ -2,8 +2,8 @@
   <div class="min-h-screen bg-gradient-to-br from-primary-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
     <nav class="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
       <div class="flex items-center gap-2">
-        <i class="pi pi-school text-3xl text-primary-600"></i>
-        <span class="text-xl font-bold text-gray-900 dark:text-white">SchoolMS</span>
+        <i class="pi pi-graduation-cap text-3xl text-primary-600"></i>
+        <span class="text-xl font-bold text-gray-900 dark:text-white">Acadex</span>
       </div>
       <div class="flex items-center gap-3">
         <button @click="store.toggleDarkMode()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
@@ -47,7 +47,7 @@
     <section class="bg-primary-600 dark:bg-primary-800 py-16">
       <div class="max-w-4xl mx-auto px-6 text-center">
         <h2 class="text-3xl font-bold text-white mb-4">Ready to Get Started?</h2>
-        <p class="text-primary-100 mb-8 text-lg">Join thousands of schools already using SchoolMS</p>
+        <p class="text-primary-100 mb-8 text-lg">Join thousands of schools already using Acadex</p>
         <Button label="Sign In to Your Account" icon="pi pi-arrow-right" iconPos="right" size="large" class="p-button-lg p-button-outlined text-white border-white hover:bg-white hover:text-primary-700" @click="router.push('/login')" />
       </div>
     </section>
@@ -57,8 +57,8 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div class="md:col-span-2">
             <div class="flex items-center gap-2 mb-4">
-              <i class="pi pi-school text-2xl text-primary-400"></i>
-              <span class="text-xl font-bold text-white">SchoolMS</span>
+              <i class="pi pi-graduation-cap text-2xl text-primary-400"></i>
+              <span class="text-xl font-bold text-white">Acadex</span>
             </div>
             <p class="text-sm max-w-md">A comprehensive school management system designed to streamline administration, enhance learning outcomes, and connect the entire school community.</p>
           </div>
@@ -81,7 +81,7 @@
           </div>
         </div>
         <div class="border-t border-gray-700 mt-8 pt-8 text-center text-sm">
-          <p>&copy; {{ new Date().getFullYear() }} SchoolMS. All rights reserved.</p>
+          <p>&copy; {{ new Date().getFullYear() }} Acadex. All rights reserved.</p>
         </div>
       </div>
     </footer>

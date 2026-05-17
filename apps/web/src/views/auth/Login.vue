@@ -7,7 +7,7 @@
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-white rounded-full blur-2xl"></div>
       </div>
       <div class="relative text-white px-16 max-w-lg">
-        <i class="pi pi-school text-6xl mb-8 block"></i>
+        <i class="pi pi-graduation-cap text-6xl mb-8 block"></i>
         <h2 class="text-4xl font-bold mb-4 leading-tight">Empowering Education,<br/>One Platform</h2>
         <p class="text-primary-100 text-lg mb-8 leading-relaxed">
           From attendance to academics, fees to communication — everything your school needs to run smoothly, in one beautiful place.
@@ -42,7 +42,7 @@
       <div class="w-full max-w-md">
         <div class="text-center mb-10">
           <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary-100 dark:bg-primary-900 mb-6">
-            <i class="pi pi-school text-3xl text-primary-600"></i>
+            <i class="pi pi-graduation-cap text-3xl text-primary-600"></i>
           </div>
           <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Welcome Back</h1>
           <p class="text-gray-500 dark:text-gray-400 mt-2">Sign in to access your dashboard</p>
