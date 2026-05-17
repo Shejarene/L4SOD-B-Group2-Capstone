@@ -80,9 +80,14 @@ export const useAuthStore = defineStore('auth', {
       router.push('/login')
     },
     async initAuth() {
+      const storedUser = JSON.parse(localStorage.getItem('user') || 'null')
+      if (storedUser) {
+        this.user = storedUser
+        this.session = { access_token: 'restored' }
+      }
       const { data: { session } } = await supabase.auth.getSession()
-      this.session = session
       if (session) {
+        this.session = session
         await this.fetchProfile()
       }
     },
