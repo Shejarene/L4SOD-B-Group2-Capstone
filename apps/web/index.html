@@ -4,9 +4,26 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ffffff" />
     <title>School Management System</title>
+    <script>
+      (function() {
+        var dark = localStorage.getItem('darkMode') === 'true';
+        if (dark) {
+          document.documentElement.classList.add('dark');
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#111827');
+        }
+        var link = document.createElement('link');
+        link.id = 'prime-theme-link';
+        link.rel = 'stylesheet';
+        link.href = dark
+          ? 'https://cdn.jsdelivr.net/npm/primevue@3.52.0/resources/themes/lara-dark-blue/theme.css'
+          : 'https://cdn.jsdelivr.net/npm/primevue@3.52.0/resources/themes/lara-light-blue/theme.css';
+        document.head.appendChild(link);
+      })();
+    </script>
   </head>
-  <body>
+  <body class="bg-gray-50 dark:bg-gray-900">
     <div id="app"></div>
     <script type="module" src="/src/main.js"></script>
   </body>

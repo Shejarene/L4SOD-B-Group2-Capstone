@@ -21,32 +21,17 @@ export const useAppStore = defineStore('app', {
       localStorage.setItem('darkMode', this.darkMode)
       const root = document.documentElement
       const meta = document.querySelector('meta[name="theme-color"]')
+      const link = document.getElementById('prime-theme-link')
 
       if (this.darkMode) {
         root.classList.add('dark')
         if (meta) meta.setAttribute('content', '#111827')
-        this.switchPrimeTheme('dark')
+        if (link) link.href = 'https://cdn.jsdelivr.net/npm/primevue@3.52.0/resources/themes/lara-dark-blue/theme.css'
       } else {
         root.classList.remove('dark')
         if (meta) meta.setAttribute('content', '#ffffff')
-        this.switchPrimeTheme('light')
+        if (link) link.href = 'https://cdn.jsdelivr.net/npm/primevue@3.52.0/resources/themes/lara-light-blue/theme.css'
       }
-    },
-    switchPrimeTheme(theme) {
-      const linkId = 'prime-theme-link'
-      let link = document.getElementById(linkId)
-      if (!link) {
-        link = document.createElement('link')
-        link.id = linkId
-        link.rel = 'stylesheet'
-        document.head.appendChild(link)
-      }
-      link.href = theme === 'dark'
-        ? 'https://cdn.jsdelivr.net/npm/primevue@3.52.0/resources/themes/lara-dark-blue/theme.css'
-        : 'https://cdn.jsdelivr.net/npm/primevue@3.52.0/resources/themes/lara-light-blue/theme.css'
-    },
-    initTheme() {
-      this.applyTheme()
     },
   },
 })
