@@ -1,0 +1,21 @@
+{
+  "name": "l4sod-school-management",
+  "version": "1.0.0",
+  "private": true,
+  "description": "L4SOD School Management System - Capstone Project",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=apps/web",
+    "build": "npm run build --workspace=apps/web",
+    "preview": "npm run preview --workspace=apps/web",
+    "db:migrate": "node scripts/run-migrations.js",
+    "db:seed": "node scripts/seed-supabase.js",
+    "lint": "npm run lint --workspace=apps/web"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
+}
