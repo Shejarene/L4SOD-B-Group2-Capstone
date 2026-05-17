@@ -1,21 +1,21 @@
 <template>
   <div class="card overflow-hidden">
-    <div v-if="$slots.header" class="mb-5">
+    <div v-if="$slots.header" class="mb-4">
       <slot name="header" />
     </div>
 
     <div v-if="loading" class="space-y-3 py-4">
       <div v-for="i in 5" :key="i" class="flex gap-4 animate-pulse">
-        <div v-for="j in 4" :key="j" class="skeleton-warm h-12 flex-1"></div>
+        <div v-for="j in 4" :key="j" class="skeleton-warm h-10 flex-1"></div>
       </div>
     </div>
 
     <div v-else-if="value.length === 0" class="empty-warm">
       <div class="empty-warm-icon">
-        <i class="pi pi-inbox text-3xl text-[#b5b0a8]"></i>
+        <i class="pi pi-inbox text-2xl text-slate-400"></i>
       </div>
-      <h3 class="text-lg font-bold text-[#2d2a26] dark:text-[#f5f0ea] mb-2">No data found</h3>
-      <p class="text-[#8a857d] max-w-sm">
+      <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1.5">No data found</h3>
+      <p class="text-sm text-slate-500 dark:text-slate-400 max-w-sm">
         <slot name="empty-message">There are no records to display. Try adjusting your filters or add new data.</slot>
       </p>
       <slot name="empty-action" />
@@ -45,10 +45,10 @@
       <template #empty>
         <div class="empty-warm py-12">
           <div class="empty-warm-icon">
-            <i class="pi pi-inbox text-3xl text-[#b5b0a8]"></i>
+            <i class="pi pi-inbox text-2xl text-slate-400"></i>
           </div>
-          <h3 class="text-lg font-bold text-[#2d2a26] dark:text-[#f5f0ea] mb-2">No data found</h3>
-          <p class="text-[#8a857d]">Try adjusting your search or filters</p>
+          <h3 class="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1.5">No data found</h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Try adjusting your search or filters</p>
         </div>
       </template>
       <slot />

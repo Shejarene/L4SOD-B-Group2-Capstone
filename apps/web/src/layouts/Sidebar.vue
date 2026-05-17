@@ -1,50 +1,44 @@
 <template>
   <aside
-    class="fixed left-0 top-0 h-full bg-white dark:bg-[#242220] border-r border-[#e8e4de] dark:border-[#3a3632] transition-all duration-300 z-30 flex flex-col"
-    :class="store.sidebarCollapsed ? 'w-20' : 'w-72'"
+    class="fixed left-0 top-0 h-full bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 transition-all duration-300 z-30 flex flex-col"
+    :class="store.sidebarCollapsed ? 'w-20' : 'w-64'"
   >
-    <!-- Logo -->
-    <div class="flex items-center h-16 px-4 border-b border-[#e8e4de] dark:border-[#3a3632]">
-      <div class="flex items-center gap-3 flex-1 min-w-0">
-        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#e07a5f] to-[#f2cc8f] flex items-center justify-center flex-shrink-0 shadow-md shadow-[#e07a5f]/20">
-          <i class="pi pi-graduation-cap text-white text-lg"></i>
+    <div class="flex items-center h-14 px-4 border-b border-slate-200 dark:border-slate-700">
+      <div class="flex items-center gap-2.5 flex-1 min-w-0">
+        <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
+          <i class="pi pi-graduation-cap text-white text-sm"></i>
         </div>
-        <span v-if="!store.sidebarCollapsed" class="font-bold text-xl text-[#2d2a26] dark:text-[#f5f0ea]">Acadex</span>
+        <span v-if="!store.sidebarCollapsed" class="font-bold text-base text-slate-900 dark:text-slate-100">Acadex</span>
       </div>
     </div>
 
-    <!-- Navigation -->
-    <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-6">
+    <nav class="flex-1 overflow-y-auto py-3 px-2.5 space-y-5">
       <template v-for="(group, groupIndex) in groupedMenu" :key="groupIndex">
-        <!-- Group label -->
-        <div v-if="group.label && !store.sidebarCollapsed" class="px-3">
-          <p class="text-[10px] font-bold text-[#b5b0a8] dark:text-[#6b6560] uppercase tracking-widest">{{ group.label }}</p>
+        <div v-if="group.label && !store.sidebarCollapsed" class="px-2.5">
+          <p class="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{{ group.label }}</p>
         </div>
-
-        <!-- Menu items -->
-        <div class="space-y-1">
+        <div class="space-y-0.5">
           <router-link v-for="item in group.items" :key="item.to" :to="item.to"
             class="sidebar-link" :class="{ 'justify-center': store.sidebarCollapsed }"
             v-tooltip.right="store.sidebarCollapsed ? item.label : undefined">
-            <i :class="item.icon" class="text-base min-w-[1.25rem]"></i>
+            <i :class="item.icon" class="text-sm min-w-[1.25rem]"></i>
             <span v-if="!store.sidebarCollapsed" class="truncate text-sm">{{ item.label }}</span>
           </router-link>
         </div>
       </template>
     </nav>
 
-    <!-- Bottom section -->
-    <div class="p-3 border-t border-[#e8e4de] dark:border-[#3a3632] space-y-1">
+    <div class="p-2.5 border-t border-slate-200 dark:border-slate-700 space-y-0.5">
       <router-link to="/app/help"
         class="sidebar-link" :class="{ 'justify-center': store.sidebarCollapsed }"
         v-tooltip.right="store.sidebarCollapsed ? 'Help' : undefined">
-        <i class="pi pi-question-circle text-base"></i>
+        <i class="pi pi-question-circle text-sm"></i>
         <span v-if="!store.sidebarCollapsed" class="text-sm">Help & Support</span>
       </router-link>
       <router-link to="/app/profile"
         class="sidebar-link" :class="{ 'justify-center': store.sidebarCollapsed }"
         v-tooltip.right="store.sidebarCollapsed ? auth.fullName : undefined">
-        <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-[#e07a5f] to-[#f2cc8f] flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+        <div class="w-6 h-6 rounded-lg bg-blue-600 flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0">
           {{ auth.initials }}
         </div>
         <span v-if="!store.sidebarCollapsed" class="truncate text-sm">{{ auth.fullName || 'Profile' }}</span>
