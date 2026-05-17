@@ -6,70 +6,90 @@ export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: JSON.parse(localStorage.getItem('user') || 'null'),
     session: null,
+    loading: false,
+    error: null,
   }),
   getters: {
     isAuthenticated: (state) => !!state.session || !!state.user,
     userRole: (state) => state.user?.role || state.user?.user_metadata?.role || null,
-    fullName: (state) => state.user ? `${state.user.firstName || state.user.user_metadata?.firstName || ''} ${state.user.lastName || state.user.user_metadata?.lastName || ''}`.trim() : '',
+    fullName: (state) => {
+      if (!state.user) return ''
+      const first = state.user.firstName || state.user.first_name || state.user.user_metadata?.firstName || ''
+      const last = state.user.lastName || state.user.last_name || state.user.user_metadata?.lastName || ''
+      return `${first} ${last}`.trim()
+    },
+    initials: (state) => {
+      if (!state.user) return '?'
+      const name = state.fullName
+      return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    },
+    isAdmin: (state) => ['super_admin', 'admin'].includes(state.user?.role),
+    isTeacher: (state) => state.user?.role === 'teacher',
+    isStudent: (state) => state.user?.role === 'student',
+    isParent: (state) => state.user?.role === 'parent',
   },
   actions: {
     async login(email, password) {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+      this.loading = true
+      this.error = null
 
-      if (error && error.code === 'email_not_confirmed') {
-        const { data: profile, error: profileError } = await supabase
-          .from('Users')
-          .select('*')
-          .eq('email', email)
-          .eq('password', password)
-          .eq('isActive', true)
-          .single()
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
-        if (profileError || !profile) {
-          throw new Error('Invalid login credentials')
+        if (error && error.code === 'email_not_confirmed') {
+          await this._loginWithUsersTable(email, password)
+          return { success: true, data: { user: this.user } }
         }
 
-        this.user = profile
-        this.session = { access_token: 'pending-confirmation' }
-        localStorage.setItem('user', JSON.stringify(this.user))
-        router.push('/app/dashboard')
-        return { success: true, data: { user: this.user, accessToken: 'pending-confirmation' } }
-      }
-
-      if (error) {
-        const { data: profile, error: profileError } = await supabase
-          .from('Users')
-          .select('*')
-          .eq('email', email)
-          .eq('password', password)
-          .eq('isActive', true)
-          .single()
-
-        if (profileError || !profile) {
-          throw new Error('Invalid login credentials')
+        if (error) {
+          await this._loginWithUsersTable(email, password)
+          return { success: true, data: { user: this.user } }
         }
 
-        this.user = profile
-        this.session = { access_token: 'local-session' }
-        localStorage.setItem('user', JSON.stringify(this.user))
+        if (!data.user) throw new Error('Login failed')
+
+        const { data: profile } = await supabase
+          .from('Users')
+          .select('*')
+          .eq('id', data.user.id)
+          .single()
+
+        this.user = profile || data.user
+        this.session = data.session
+        this._saveUser()
         router.push('/app/dashboard')
-        return { success: true, data: { user: this.user, accessToken: 'local-session' } }
+        return { success: true, data: { user: this.user } }
+      } catch (err) {
+        this.error = err.message || 'Invalid login credentials'
+        throw err
+      } finally {
+        this.loading = false
       }
+    },
 
-      if (!data.user) throw new Error('Login failed')
-
-      const { data: profile } = await supabase
+    async _loginWithUsersTable(email, password) {
+      const { data: profile, error: profileError } = await supabase
         .from('Users')
         .select('*')
-        .eq('id', data.user.id)
+        .eq('email', email)
+        .eq('password', password)
+        .eq('isActive', true)
         .single()
 
-      this.user = profile || data.user
-      this.session = data.session
-      localStorage.setItem('user', JSON.stringify(this.user))
+      if (profileError || !profile) {
+        throw new Error('Invalid email or password')
+      }
+
+      this.user = profile
+      this.session = { access_token: 'local-session' }
+      this._saveUser()
       router.push('/app/dashboard')
-      return { success: true, data: { user: this.user, accessToken: data.session?.access_token } }
     },
+
+    _saveUser() {
+      localStorage.setItem('user', JSON.stringify(this.user))
+    },
+
     async signup(email, password, metadata) {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -79,6 +99,7 @@ export const useAuthStore = defineStore('auth', {
       if (error) throw error
       return { success: true, data }
     },
+
     async fetchProfile() {
       if (!this.user?.id) return
       const { data: profile } = await supabase
@@ -88,16 +109,19 @@ export const useAuthStore = defineStore('auth', {
         .single()
       if (profile) {
         this.user = profile
-        localStorage.setItem('user', JSON.stringify(this.user))
+        this._saveUser()
       }
     },
+
     async logout() {
       await supabase.auth.signOut().catch(() => {})
       this.user = null
       this.session = null
+      this.error = null
       localStorage.removeItem('user')
       router.push('/login')
     },
+
     async initAuth() {
       const storedUser = JSON.parse(localStorage.getItem('user') || 'null')
       if (storedUser) {
@@ -109,6 +133,10 @@ export const useAuthStore = defineStore('auth', {
         this.session = session
         await this.fetchProfile()
       }
+    },
+
+    clearError() {
+      this.error = null
     },
   },
 })
