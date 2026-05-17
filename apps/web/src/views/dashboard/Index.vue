@@ -23,7 +23,7 @@
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <div v-for="stat in roleStats" :key="stat.label" class="stat-card">
         <div class="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0" :class="stat.bgClass">
-          <i :class="stat.icon" class="text-xl" :class="stat.iconClass"></i>
+          <i :class="[stat.icon, 'text-xl', stat.iconClass]"></i>
         </div>
         <div>
           <p class="text-sm text-gray-500 dark:text-gray-400">{{ stat.label }}</p>
@@ -58,7 +58,7 @@
           <div v-for="item in todayOverview" :key="item.label" class="flex items-center justify-between">
             <div class="flex items-center gap-3">
               <div class="w-8 h-8 rounded-lg flex items-center justify-center" :class="item.bgClass">
-                <i :class="item.icon" class="text-sm" :class="item.iconClass"></i>
+                <i :class="[item.icon, 'text-sm', item.iconClass]"></i>
               </div>
               <span class="text-sm text-gray-600 dark:text-gray-400">{{ item.label }}</span>
             </div>
