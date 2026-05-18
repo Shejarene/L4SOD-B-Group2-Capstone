@@ -35,15 +35,15 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
       <div class="lg:col-span-2 card">
         <h2 class="section-title">Quick Actions</h2>
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
           <button
             v-for="action in roleActions"
             :key="action.label"
             @click="router.push(action.to)"
-            class="action-warm group"
+            class="flex flex-col items-center justify-center p-4 rounded-lg bg-slate-50 dark:bg-slate-800/50 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors group"
           >
-            <div class="action-warm-icon group-hover:bg-blue-100 dark:group-hover:bg-blue-900/30">
-              <i :class="[action.icon, 'text-base text-slate-600 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors']"></i>
+            <div class="w-12 h-12 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-700 mb-2 group-hover:bg-blue-100 dark:group-hover:bg-blue-800 transition-colors">
+              <i :class="[action.icon, 'text-xl text-slate-600 dark:text-slate-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors']"></i>
             </div>
             <span class="text-sm font-medium text-slate-700 dark:text-slate-300 text-center">{{ action.label }}</span>
           </button>
@@ -89,13 +89,19 @@
             </span>
           </div>
         </div>
-        <div v-else class="empty-warm py-8">
-          <div class="empty-warm-icon">
-            <i class="pi pi-users text-xl text-slate-400"></i>
+        <div v-else class="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg p-6 text-center">
+          <div class="flex justify-center items-center w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/50 mx-auto">
+            <i class="pi pi-users text-xl text-blue-600 dark:text-blue-400"></i>
           </div>
-          <p class="text-sm text-slate-500 dark:text-slate-400">No students yet</p>
-          <router-link to="/app/students" class="text-sm text-blue-600 dark:text-blue-400 font-medium mt-1.5 inline-block hover:underline">
-            Add your first student
+          <h3 class="text-base font-semibold text-slate-800 dark:text-slate-200 mt-4">No Students Found</h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-4">
+            Get started by adding your first student to the system.
+          </p>
+          <router-link
+            to="/app/students"
+            class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors bg-blue-600 text-white hover:bg-blue-700"
+          >
+            Add Your First Student
           </router-link>
         </div>
       </div>
@@ -107,13 +113,19 @@
             View all <i class="pi pi-arrow-right text-xs ml-1"></i>
           </router-link>
         </div>
-        <div class="empty-warm py-8">
-          <div class="empty-warm-icon">
-            <i class="pi pi-bullhorn text-xl text-slate-400"></i>
+        <div class="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-lg p-6 text-center">
+          <div class="flex justify-center items-center w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/50 mx-auto">
+            <i class="pi pi-bullhorn text-xl text-blue-600 dark:text-blue-400"></i>
           </div>
-          <p class="text-sm text-slate-500 dark:text-slate-400">No announcements yet</p>
-          <router-link to="/app/communication/announcements" class="text-sm text-blue-600 dark:text-blue-400 font-medium mt-1.5 inline-block hover:underline">
-            Create one
+          <h3 class="text-base font-semibold text-slate-800 dark:text-slate-200 mt-4">Welcome to Acadex!</h3>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 mb-4">
+            This is where you'll see important school-wide announcements.
+          </p>
+          <router-link
+            to="/app/communication/announcements"
+            class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors bg-blue-600 text-white hover:bg-blue-700"
+          >
+            Make your first announcement
           </router-link>
         </div>
       </div>
@@ -212,8 +224,10 @@ const getInitials = (student) => {
 }
 
 const getStudentName = (student) => {
-  if (student.user) return `${student.user.firstName || ''} ${student.user.lastName || ''}`.trim()
-  if (student.Users) return `${student.Users.firstName || ''} ${student.Users.lastName || ''}`.trim()
+  const user = student.user || student.Users
+  if (user) {
+    return `${user.firstName || ''} ${user.lastName || ''}`.trim()
+  }
   return student.name || student.admissionNumber || 'Unknown'
 }
 

@@ -24,62 +24,61 @@ async function seed() {
   console.log('Seeding Supabase with demo users...\n')
 
   for (const u of adminUsers) {
-    const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
+    // First, try to ensure the auth user exists.
+    let { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email: u.email,
       password: u.password,
       email_confirm: true,
       user_metadata: { role: u.role, firstName: u.firstName, lastName: u.lastName }
-    })
+    });
 
-    if (authError) {
-      if (authError.message.includes('already exists')) {
-        console.log(`⏭️  ${u.email} already exists in auth`)
-        const { data: existingUsers } = await supabase.from('Users').select('id').eq('email', u.email)
-        if (existingUsers && existingUsers.length > 0) {
-          console.log(`   Profile exists in Users table`)
-          continue
-        }
-        const { data: authUsers } = await supabase.auth.admin.listUsers()
-        const found = authUsers?.users?.find(x => x.email === u.email)
-        if (found) {
-          const { error: dbError } = await supabase.from('Users').insert({
-            id: found.id,
-            email: u.email,
-            role: u.role,
-            firstName: u.firstName,
-            lastName: u.lastName,
-            phone: u.phone,
-          })
-          if (dbError) {
-            console.error(`   ❌ Profile insert: ${dbError.message}`)
-          } else {
-            console.log(`   ✅ Created profile in Users table`)
-          }
-          continue
-        }
-        continue
-      }
-      console.error(`❌ ${u.email}: ${authError.message}`)
-      continue
+    if (authError && !authError.message.includes('already been registered')) {
+      // It's a real error, not an "already exists" error.
+      console.error(`❌ Error creating auth user ${u.email}: ${authError.message}`);
+      continue;
     }
 
-    const userId = authUser.user.id
+    // At this point, the user exists in auth. Let's get their data.
+    const { data: { users }, error: listError } = await supabase.auth.admin.listUsers();
+    if (listError) {
+      console.error(`❌ Could not list users: ${listError.message}`);
+      continue;
+    }
+    const foundUser = users.find(user => user.email === u.email);
 
-    const { error: dbError } = await supabase
+    if (!foundUser) {
+      console.error(`❌ Could not find user ${u.email} in auth after creation attempt.`);
+      continue;
+    }
+
+    // Now, check if the profile exists in the public Users table.
+    const { data: userProfile, error: profileError } = await supabase
       .from('Users')
-      .insert({
-        id: userId,
-        email: u.email,
-        role: u.role,
-        firstName: u.firstName,
-        lastName: u.lastName,
-        phone: u.phone,
-      })
+      .select('id')
+      .eq('id', foundUser.id)
+      .single();
+
+    if (userProfile) {
+      console.log(`⏭️  ${u.email} already has a profile.`);
+      continue;
+    }
+    
+    // Profile doesn't exist, so create it.
+    console.log(`⏳ ${u.email} exists in auth, creating profile...`)
+    const { error: dbError } = await supabase.from('Users').insert({
+      id: foundUser.id,
+      email: u.email,
+      role: u.role,
+      firstName: u.firstName,
+      lastName: u.lastName,
+      phone: u.phone,
+      password: u.password,
+    });
 
     if (dbError) {
-      console.error(`❌ ${u.email} DB insert: ${dbError.message}`)
+      console.error(`   ❌ ${u.email} DB insert: ${dbError.message}`);
     } else {
-      console.log(`✅ ${u.email} (${u.role}) created`)
+      console.log(`   ✅ ${u.email} profile created`);
     }
   }
 
